@@ -56,7 +56,7 @@ io.on('connection', (socket) => {
     console.log("New Socket ID: ", socket.id);
     players[socketID] = new Player(socketID);
 
-    console.log(players);
+    // console.log(players);
     
 
     // 2. Broadcasting the updated players object to everyone

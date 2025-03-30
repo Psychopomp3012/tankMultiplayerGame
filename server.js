@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
     
 
     socket.on('playerMove', (playerCoordinate) => {
-        console.log(playerCoordinate);
+        // console.log(playerCoordinate);
         let { socketID, x, y, angle } = playerCoordinate;
         
         players[socketID].x = x;
@@ -93,7 +93,7 @@ io.on('connection', (socket) => {
                 .map(([id, p]) => [id, { x: p.x, y: p.y, socketID: p.socketID }])
         ));
 
-        console.log(players);
+        // console.log(players);
         
     })
 });

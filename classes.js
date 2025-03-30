@@ -1,13 +1,53 @@
+const colorBasedSpriteCoordinates = { 
+    red: {
+        tank: {
+            x: 588,
+            y: 0
+        },
+        barrel: {
+            x: 834,
+            y: 0
+        }
+    }, 
+    green: {
+        tank: {
+            x: 573,
+            y: 275
+        },
+        barrel: {
+            x: 818,
+            y: 110
+        }
+    }, 
+    blue: {
+        tank: {
+            x: 506,
+            y: 78
+        },
+        barrel: {
+            x: 827,
+            y: 226
+        }
+    } 
+};
+
+const keys = Object.keys(colorBasedSpriteCoordinates);
+
+
 export class Player {
-    constructor(socketID, x = 0, y = 0, angle = 0) {
+    constructor(socketID) {
         this.socketID = socketID;
         this.width = 50;
         this.height = 50;
         this.x = Math.floor(Math.random() * (1000 - this.width)); // CANVAS is 1000
         this.y = Math.floor(Math.random() * (1000 - this.width));
         this.speed = 5;
-        this.angle = angle;
-        
+        this.angle = 0;
+        this.colorBasedSpriteCoordinates = colorBasedSpriteCoordinates[
+            keys[
+                Math.floor(Math.random() * 3)
+            ]
+        ]
     }
     // draw() {
     //     ctx.fillRect(this.x, this.y, this.width, this.height);

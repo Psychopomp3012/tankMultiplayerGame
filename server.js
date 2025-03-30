@@ -33,65 +33,63 @@ const io = new Server(server, {
 //     window.location.href = "index.html"; // Redirect back if no room
 // }
 
-let socketID;
 let numberOfPlayers = 0;
 // All player objects are stored here
+// as socketID => Player mapping
 const players = {};
 
 // SAMPLE DATA:
 // let playerObject = {
 //     "socketID": {
-//         "socketID": socketID,
-//         "x": 200,
-//         "y": 200
+//         this.socketID = socketID;
+        // this.width = 50;
+        // this.height = 50;
+        // this.x = Math.floor(Math.random() * (1000 - this.width)); // CANVAS is 1000
+        // this.y = Math.floor(Math.random() * (1000 - this.width));
+        // this.speed = 5;
+        // this.angle = angle;
 //     }
 // }
 
 io.on('connection', (socket) => {
-    // 1. On connection, server creates a new player obj
-    // and stores it as socketID => Player mapping
     numberOfPlayers++;
-    console.log("No of Players: ", numberOfPlayers);
-    socketID = socket.id;
+    console.log("NEW PLAYER!!, No of Players: ", numberOfPlayers);
+    const socketID = socket.id;
     console.log("New Socket ID: ", socket.id);
+
+    // 1. On connection, server creates a new player obj
+    // & update the players object
     players[socketID] = new Player(socketID);
 
     // console.log(players);
     
-
-    // 2. Broadcasting the updated players object to everyone
-    io.emit('updatePlayers', Object.fromEntries(
-        Object.entries(players)
-              .map(([id, p]) => [id, { x: p.x, y: p.y, angle: p.angle, socketID: p.socketID }])
-    ));
+    // 2. Broadcasting the updated players object to everyone except client
+    socket.broadcast.emit('newPlayerJoined', players[socketID]);
     
+    // 3. new player gets the entire players object
+    socket.emit("dataForNewPlayer", players);
 
-    socket.on('playerMove', (playerCoordinate) => {
+    socket.on('playerMovedLocally', ({ socketID, x, y, angle }) => {
         // console.log(playerCoordinate);
-        let { socketID, x, y, angle } = playerCoordinate;
+        // let  = playerCoordinate;
         
         players[socketID].x = x;
         players[socketID].y = y;
         players[socketID].angle = angle;
 
-        // send the updated data to all clients except sender
-        socket.broadcast.emit('updatePlayers', Object.fromEntries(
-        Object.entries(players)
-              .map(([id, p]) => [id, { x: p.x, y: p.y, angle: p.angle, socketID: p.socketID }])
-        ));
+        // send the moved player data to all clients except sender
+        socket.broadcast.emit('otherPlayerMoved', players[socketID]);
     });
 
     // Player Disconnected
     socket.on('disconnect', () => {
         numberOfPlayers--;
-        console.log("Number of Players:", numberOfPlayers);  
+        console.log("Player Disconnected, Number of Players:", numberOfPlayers);  
         delete players[socketID];
 
-        // 2. Broadcasting the updated players object to everyone
-        io.emit('updatePlayers', Object.fromEntries(
-            Object.entries(players)
-                .map(([id, p]) => [id, { x: p.x, y: p.y, socketID: p.socketID }])
-        ));
+        // 2. Broadcasting the socketID of disconnected player to everyone
+        // except for the player who disconnected
+        socket.broadcast.emit('playerLeft', socket.id);
 
         // console.log(players);
         
